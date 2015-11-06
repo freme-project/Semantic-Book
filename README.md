@@ -1,8 +1,14 @@
 # Semantic Book
 
+## Usage
+
+We provided steps (as can be seen in the folder structure) to create the Semantic Book. In each folder you can find a README where it is explained what needs to be done.
+
+## Tasks
+
 1. FREME private github repo (toegang voor Ben, Gerald, Pieter, Frank) #Pieter
     1. https://github.com/freme-project/Semantic-Book (done)
-    2. basic folder structure
+    2. basic folder structure (done)
 2. Content Wikipedia on Athens https://en.wikipedia.org/wiki/Athens
     1. Prepare HTML files for ePublishing #Pieter
 3. eEntity toegepast op HTMLs (HTMLs in, HTMLs EN NIF uit) #Gerald
