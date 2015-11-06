@@ -1,5 +1,7 @@
 #! /bin/bash
 
+cp -r original/athens_files .
+
 #create introduction.html
 head -n 236 original/athens.html > introduction.html 
 echo '</div></div></div></body></html>' >> introduction.html
