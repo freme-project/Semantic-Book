@@ -1,7 +1,5 @@
 # Semantic Book
 
-More information [here](https://docs.google.com/document/d/1V9PqmbXAM1KNLfIwwRtV6De2YORC5ih-Cg-yLJYAlzM/edit#).
-
 1. FREME private github repo (toegang voor Ben, Gerald, Pieter, Frank) #Pieter
     1. https://github.com/freme-project/Semantic-Book (done)
     2. basic folder structure
