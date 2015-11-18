@@ -5,7 +5,7 @@ then
 	mkdir ./out
 fi
 
-ficp -r original/athens_files ./out/
+cp -r original/athens_files ./out/
 
 #create introduction.html
 head -n 236 original/athens.html > ./out/introduction.html 
