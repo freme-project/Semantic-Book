@@ -14,7 +14,7 @@ do
 	cp ../step-3/out/$file.html ./out
 	sed -i 's/<\/body>//g' ./out/$file.html
 	sed -i 's/<\/html>//g' ./out/$file.html
-	echo '<script type="text/turtle">' >> ./out/$file.html
+	echo '<script id="e-link_nif" type="text/turtle">' >> ./out/$file.html
 	cat ./nif/$file.ttl >> ./out/$file.html
 	echo "</script></body></html>" >> ./out/$file.html
 done
