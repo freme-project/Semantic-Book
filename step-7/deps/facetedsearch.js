@@ -12,24 +12,24 @@
         facets: {'a': 'Title A', 'b': 'Title B', 'c': 'Title C'},
         resultSelector: '#results',
         facetSelector: '#facets',
-        facetContainer: '<div class=facetsearch id=<%= id %> ></div>',
-        facetTitleTemplate: '<h3 class=facettitle><%= title %></h3>',
-        facetListContainer: '<div class=facetlist></div>',
-        listItemTemplate: '<div class=facetitem id="<%= id %>"><%= name %> <span class=facetitemcount>(<%= count %>)</span></div>',
-        bottomContainer: '<div class=bottomline></div>',
-        orderByTemplate: '<div class=orderby><span class="orderby-title">Sort by: </span><ul><% _.each(options, function(value, key) { %>' +
-        '<li class=orderbyitem id=orderby_<%= key %>>' +
+        facetContainer: '<div class="facetsearch" id="<%= id %>"></div>',
+        facetTitleTemplate: '<h3 class="facettitle"><%= title %></h3>',
+        facetListContainer: '<div class="facetlist"></div>',
+        listItemTemplate: '<div class="facetitem" id="<%= id %>"><%= name %> <span class="facetitemcount">(<%= count %>)</span></div>',
+        bottomContainer: '<div class="bottomline"></div>',
+        orderByTemplate: '<div class="orderby"><span class="orderby-title">Sort by: </span><ul><% _.each(options, function(value, key) { %>' +
+        '<li class="orderbyitem" id="orderby_<%= key %>">' +
         '<%= value %> </li> <% }); %></ul></div>',
-        countTemplate: '<div class=facettotalcount><%= count %> Results</div>',
-        deselectTemplate: '<div class=deselectstartover>Deselect all filters</div>',
-        resultTemplate: '<div class=facetresultbox><%= name %></div>',
-        noResults: '<div class=results>Sorry, but no items match these criteria</div>',
+        countTemplate: '<div class="facettotalcount"><%= count %> Results</div>',
+        deselectTemplate: '<div class="deselectstartover">Deselect all filters</div>',
+        resultTemplate: '<div class="facetresultbox"><%= name %></div>',
+        noResults: '<div class="results">Sorry, but no items match these criteria</div>',
         orderByOptions: {'a': 'by A', 'b': 'by B', 'RANDOM': 'by random'},
         state: {
             orderBy: false,
             filters: {}
         },
-        showMoreTemplate: '<a id=showmorebutton>Show more</a>',
+        showMoreTemplate: '<a id="showmorebutton">Show more</a>',
         enablePagination: true,
         paginationCount: 20
     };
@@ -357,9 +357,19 @@
                 batchItemNr: i - settings.state.shownResults,
                 batchItemCount: showNowCount
             });
-            itemHtml += template(item);
+            // ORIG itemHtml += template(item);
+
+            // DEBUG
+            var tpl = template(item);
+            try {
+                $(settings.resultSelector).append(tpl);
+            } catch (e) {
+                console.log(tpl);
+                throw e;
+            }
+            // /DEBUG
         }
-        $(settings.resultSelector).append(itemHtml);
+        // ORIG $(settings.resultSelector).append(itemHtml);
         if (!moreButton) {
             moreButton = $(settings.showMoreTemplate).click(showMoreResults);
             $(settings.resultSelector).after(moreButton);

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Search</title>
+    <style type="text/css">
+        /*<![CDATA[*/
+        body {
+            font-family: Verdana, sans-serif;
+        }
+
+        .facetsearch {
+            display: inline-block;
+            width: 200px;
+            vertical-align: top;
+        }
+
+        .facetitem, .orderbyitem, .deselectstartover {
+            cursor: pointer;
+            border: black solid 3px;
+            border-radius: 16px;
+            box-shadow: 1px 1px gray;
+            margin: 4px;
+            padding: 5px !important
+        }
+
+        span.facetitemcount {
+            float: right;
+        }
+
+        .facetitem:hover, .activefacet {
+            background-color: rgb(216, 216, 216);
+        }
+
+        .activeorderby,
+        .activefacet {
+            color: red;
+        }
+
+        .activereverseorderby:after {
+            content: "(rev)";
+        }
+
+        .bottomline {
+            padding: 10px 0 10px 0;
+            font-weight: bold;
+        }
+
+        .bottomline .orderby,
+        .bottomline .facettotalcount {
+            display: inline-block;
+        }
+
+        .bottomline .orderby ul,
+        .bottomline .orderby li {
+            display: inline;
+            padding: 0;
+        }
+
+        .bottomline .orderby-title {
+            margin: 0 0 0 10px;
+        }
+
+        .bottomline .deselectstartover {
+            float: right;
+        }
+
+        #language {
+            width: 400px;
+        }
+
+        #language .facetlist {
+            column-count: 2;
+            -webkit-column-count: 2;
+            -moz-column-count: 2;
+            -o-column-count: 2;
+        }
+
+        .item {
+            width: 350px;
+            height: 250px;
+            margin: 0 10px 10px 0;
+            display: inline-block;
+            vertical-align: top;
+            overflow-y: auto;
+        }
+
+        .item h4 {
+            font-size: 1.2em;
+        }
+
+        .item .tags {
+            font-weight: bold;
+            color: gray;
+        }
+
+        #showmorebutton {
+            border: 1px solid #AAA;
+            border-radius: 15px;
+            background-color: #DDD;
+            margin: 0 0 10px 0;
+            padding: 10px;
+            width: 100%;
+            display: block;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /*]]>*/
+    </style>
+    <script>
+        /*<![CDATA[*/
+        <!--JQUERY-->
+        /*]]>*/
+    </script>
+    <script>
+        /*<![CDATA[*/
+        <!--UNDERSCORE-->
+        /*]]>*/
+    </script>
+    <script>
+        /*<![CDATA[*/
+        <!--FACET-->
+        /*]]>*/
+    </script>
+    <script id="e-link_nif" type="text/ttl">
+        <![CDATA[
+        <!--TTL-->
+        ]]>
+    </script>
+    <script>
+        /*<![CDATA[*/
+        <!--N3-->
+        /*]]>*/
+    </script>
+</head>
+<body style="font-famile: sans-serif;">
+<h1 style="text-align: center;">Search box</h1>
+
+<div id="facets">Loading facets...</div>
+<div id="results"></div>
+<script type="application/javascript">
+    /*<![CDATA[*/
+    $(function () {
+        var store = new N3.Store();
+        var parser = new N3.Parser();
+        var item_template =
+                '<div class="item">' +
+                '    <h4><a href="<%= obj.url %>" target="_blank"><%= obj.label %></a></h4>' +
+                '    <p class="tags">' +
+                '        <% if (obj.type) {  %><%= obj.type %><% } %>' +
+                '        (<% if (obj.count) {  %><%= obj.count %><% } %>)' +
+                '    </p>' +
+                '    <p class="desc"><%= obj.comment %></p>' +
+                '</div>';
+        var settings = {
+            facets: {
+                'type': 'What Type'
+            },
+            resultSelector: '#results',
+            facetSelector: '#facets',
+            resultTemplate: item_template,
+            paginationCount: 25,
+            orderByOptions: {'label': 'Label', 'type': 'Type', 'count': 'Count'},
+            facetSortOption: {}
+        };
+        var ttl = document.getElementById('e-link_nif').innerHTML.replace(/^\s*<!\[CDATA\[\s*/, '').replace(/\s*\]\]>\s*$/, '').replace(/\]\]>\s*<!\[CDATA\[/g, '');
+        console.log(ttl.slice(0, 1500));
+        var lastTriple = {};
+        parser.parse(ttl,
+                function (error, triple, prefixes) {
+                    if (error) {
+                        console.log(lastTriple);
+                        console.log('error! ' + JSON.stringify(error) + ' ' + store.find(null, null, null).length);
+                    }
+                    if (triple) {
+                        lastTriple = triple;
+                        store.addTriple(triple);
+                    }
+                    else {
+                        var subjects = {};
+                        var classSubjects = store.find(null, 'http://www.w3.org/2005/11/its/rdf#taIdentRef', null);
+                        for (var i = 0; i < classSubjects.length; i++) {
+                            var nifUrl = classSubjects[i].subject;
+                            var ref = classSubjects[i].object;
+                            if (!subjects[ref]) {
+                                var comments = store.find(ref, 'http://www.w3.org/2000/01/rdf-schema#comment', null);
+                                if (comments.length === 0) {
+                                    comments = [{subject: '', predicate: '', object: '""@en'}];
+                                }
+                                var commentEn = '';
+                                for (var j = 0; j < comments.length; j++) {
+                                    var lang = comments[j].object.match(/@(.{1,5})$/)[1];
+                                    if (lang === 'en') {
+                                        commentEn = comments[j].object.replace(/@.{1,5}$/, '').slice(1, -1);
+                                        break;
+                                    }
+                                }
+                                // taClassRef
+                                var classRef = store.find(nifUrl, 'http://www.w3.org/2005/11/its/rdf#taClassRef', null)[0].object;
+                                subjects[ref] = {
+                                    url: toXHTML(ref),
+                                    label: toXHTML(decodeURIComponent(decodeURIComponent(ref.replace('http://dbpedia.org/resource/', '').replace(/_/g, ' ')))),
+                                    comment: commentEn !== '' ? toXHTML(commentEn) : toXHTML(comments[0].object.replace(/@.{1,5}$/, '').slice(1, -1)),
+                                    type: classRef.replace(/^[\s\S]+#/, ''),
+                                    count: 0
+                                };
+                            }
+                            subjects[ref].count++
+                        }
+                        subjects = _.values(subjects);
+                        settings.items = subjects;
+                        $.facetelize(settings);
+                    }
+                });
+    });
+
+    function toXHTML(str) {
+        return str.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
+            return '&#' + i.charCodeAt(0) + ';';
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
