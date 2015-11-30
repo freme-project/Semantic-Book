@@ -3,11 +3,8 @@
 OUTPUT_DIR='nif'
 INPUT_DIR='../step-2/out'
 
-# create output directory, if it doesn't exist yet
-if [ ! -e "$OUTPUT_DIR" ]
-then
-	mkdir $OUTPUT_DIR
-fi
+rm -rf $OUTPUT_DIR
+mkdir $OUTPUT_DIR
 
 for input_file in $(ls $INPUT_DIR/*.html)
 do
