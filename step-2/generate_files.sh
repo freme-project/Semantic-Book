@@ -6,7 +6,6 @@ then
 fi
 
 cp -r original/athens_files ./out/
-cp original/athens_files/load.js ./out/load.js
 
 #create introduction.html
 head -n 235 original/athens.html > ./out/introduction.html
