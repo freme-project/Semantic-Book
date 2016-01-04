@@ -52,7 +52,73 @@
     }
 
     .modalClose:hover {
-        background: #00d9ff;
+        background: #08C;
+    }
+
+    .tabs input[type=radio] {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    .tabs {
+        list-style: none;
+        position: relative;
+        margin: 0;
+    }
+    .tabs li{
+        float: left;
+    }
+    .tabs label {
+        display: block;
+        padding: 10px 20px;
+        border-radius: 2px 2px 0 0;
+        color: #08C;
+        font-size: 24px;
+        font-weight: normal;
+        font-family: 'Lily Script One', helveti;
+        background: rgba(255,255,255,0.2);
+        cursor: pointer;
+        position: relative;
+        top: 19px;
+        -webkit-transition: all 0.2s ease-in-out;
+        -moz-transition: all 0.2s ease-in-out;
+        -o-transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;
+    }
+    .tabs label:hover {
+        background: rgba(255,255,255,0.5);
+        top: 16px;
+    }
+
+    [id^=tab]:checked + label {
+        background: #08C;
+        color: white;
+        top: 16px;
+    }
+
+    [id^=tab]:checked ~ [id^=tab-content] {
+        display: block;
+    }
+    .tab-content{
+        z-index: 2;
+        display: none;
+        text-align: left;
+        width: 100%;
+        font-size: 20px;
+        line-height: 140%;
+        background: #08C;
+        padding: 15px;
+        color: white;
+        position: absolute;
+        top: 73px;
+        left: 0;
+        box-sizing: border-box;
+        -webkit-animation-duration: 0.5s;
+        -o-animation-duration: 0.5s;
+        -moz-animation-duration: 0.5s;
+        animation-duration: 0.5s;
+        max-height: 50vh;
+        overflow-y: auto;
     }
 </style>
 <script>
@@ -78,9 +144,12 @@
     modal.appendChild(innerModal);
     var modalTitle = document.createElement("h3");
     var modalContent = document.createElement("div");
+    var modalTabs = document.createElement("ul");
     var modalButton = document.createElement("button");
     modalButton.innerHTML = 'X';
     modalButton.className = 'modalClose';
+    modalTabs.className = 'tabs';
+    modalContent.appendChild(modalTabs);
     innerModal.appendChild(modalTitle);
     innerModal.appendChild(modalContent);
     innerModal.appendChild(modalButton);
@@ -92,21 +161,50 @@
 
     function appendHover(span) {
         var comments = store.find(span.getAttribute('about').replace('dbpedia:', 'http://dbpedia.org/resource/'), 'http://www.w3.org/2000/01/rdf-schema#comment', null);
+        comments.sort(function(a, b) {
+            var langA = a.object.match(/@(.{1,5})$/)[1];
+            var langB = b.object.match(/@(.{1,5})$/)[1];
+            if (langA === langB) return 0;
+            if (langA < langB) return -1;
+            return +1;
+        });
         if (comments.length > 0) {
             span.style.textDecoration = 'underline';
             span.style.cursor = 'pointer';
             span.onclick = function () {
                 modalTitle.innerHTML = span.getAttribute('about').replace('dbpedia:', '').replace(/_/g, ' ');
+                modalTabs.innerHTML = '';
                 for (var i = 0; i < comments.length; i++) {
                     var lang = comments[i].object.match(/@(.{1,5})$/)[1];
-                    if (lang !== 'en') {
-                        continue;
-                    }
-                    modalContent.innerHTML = comments[i].object.replace(/@.{1,5}$/, '').slice(1, -1);
+                    addTab(modalTabs, lang, comments[i].object.replace(/@.{1,5}$/, '').slice(1, -1));
                 }
+                try {
+                    modalTabs.querySelector('#tab_en').setAttribute('checked', 'checked');
+                }
+                catch(_) {}
                 modal.style.opacity = '1';
                 modal.style.pointerEvents = 'auto';
             };
         }
+    }
+
+    function addTab(el, title, content) {
+        var li = document.createElement("li");
+        var input = document.createElement('input');
+        input.setAttribute('type', 'radio');
+        input.setAttribute('name', 'tabs');
+        var tabId = title.replace(/\s+/g, '-');
+        input.setAttribute('id', 'tab_' + tabId);
+        li.appendChild(input);
+        var label = document.createElement('label');
+        label.setAttribute('for', 'tab_' + tabId);
+        label.innerHTML = title;
+        li.appendChild(label);
+        var div = document.createElement('div');
+        div.setAttribute('id', 'tab-content_' + tabId);
+        div.setAttribute('class', 'tab-content animated fadeIn');
+        div.innerHTML = content;
+        li.appendChild(div);
+        el.appendChild(li);
     }
 </script>
