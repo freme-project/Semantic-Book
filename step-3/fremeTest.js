@@ -15,6 +15,7 @@ fs.readdir(htmlPath, function (err, files) {
     if (err) {
         throw err;
     }
+    var idCounter = 0;
     async.each(files, function (file, done) {
         if (!file.match(/\.html$/)) {
             return done();
@@ -27,15 +28,15 @@ fs.readdir(htmlPath, function (err, files) {
                 if (readNifErr) {
                     return done(readNifErr);
                 }
-                nif = JSON.parse(nif)['@graph'].sort(function (a, b) {
+                var graph = JSON.parse(nif)['@graph'].sort(function (a, b) {
                     return b.endIndex - a.endIndex;
                 });
 
                 var lastOffset = html.length - 1;
                 var stripped = strip(html);
 
-                for (var j = 0; j < nif.length; j++) {
-                    var val = nif[j];
+                for (var j = 0; j < graph.length; j++) {
+                    var val = graph[j];
                     var add = {
                         url: val['nif:taIdentRef'] || val.taIdentRef || '',
                         selection: val['nif:anchorOf'] || val.anchorOf || ''
@@ -48,15 +49,30 @@ fs.readdir(htmlPath, function (err, files) {
                         continue;
                     }
                     var end = start + add.selection.length;
-                    lastOffset = nif[j + 1] && nif[j + 1].endIndex < start ? start : end;
+                    lastOffset = graph[j + 1] && graph[j + 1].endIndex < start ? start : end;
+
+                    //var newId = encodeURIComponent(val['@id'].substring(val['@id'].indexOf('#') + 1));
+                    var newId = 'sembook-' + idCounter;
+                    idCounter++;
+                    graph[j]["@id"] = 'epub://' + file + '#' + newId;
+                    var idPart = 'id="' + newId + '"';
                     var rdfPart = 'about="' + add.url + '"';
                     // replacement for RDFa
-                    var annotatedContent = rdfPart.length > 0 ? '<span ' + rdfPart + '>' + add.selection + "</span>" : add.selection;
+                    var annotatedContent = rdfPart.length > 0 ? '<span ' + idPart + ' ' + rdfPart + '>' + add.selection + "</span>" : add.selection;
                     stripped.middle = stripped.middle.slice(0, start) + annotatedContent + stripped.middle.slice(end);
                 }
                 if (stripped.begin.indexOf('prefix="dbpedia:"') === -1) {
                     stripped.begin = stripped.begin.slice(0, -1) + ' prefix="dbpedia: http://dbpedia.org/resource/">';
                 }
+
+                // write changed NIF
+                var changedNif = JSON.parse(nif);
+                changedNif['@graph'] = graph;
+                changedNif = JSON.stringify(changedNif);
+                var nifFile = file + '.json';
+                fs.writeFile(path.resolve(outPath, nifFile), changedNif, 'utf8');
+
+                // write changed HTML
                 fs.writeFile(path.resolve(outPath, file), stripped.begin + stripped.middle + stripped.end, 'utf8', function (writeErr) {
                     if (writeErr) {
                         return done(writeErr);
