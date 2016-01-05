@@ -124,7 +124,8 @@
 <script>
     var store = new N3.Store();
     var parser = new N3.Parser();
-    var ttl = document.getElementById('e-link_nif').innerHTML.replace(/^\s*<!\[CDATA\[\s*/, '').replace(/\s*\]\]>\s*$/, '').replace(/\]\]>\s*<!\[CDATA\[/g, '');
+    var innHTML = document.getElementById('e-link_nif').innerHTML;
+    var ttl = innHTML.slice(innHTML.indexOf('@prefix'), innHTML.lastIndexOf('.') + 1).replace(/\]\]>\s*<!\[CDATA\[/g, '');
     parser.parse(ttl,
             function (error, triple, prefixes) {
                 if (triple) {
@@ -203,7 +204,7 @@
         var div = document.createElement('div');
         div.setAttribute('id', 'tab-content_' + tabId);
         div.setAttribute('class', 'tab-content animated fadeIn');
-        div.innerHTML = content;
+        div.innerHTML = content.replace(/<[^>]*>/g, '');
         li.appendChild(div);
         el.appendChild(li);
     }
