@@ -107,6 +107,88 @@
             cursor: pointer;
         }
 
+        .origLocations li {
+            display: inline-block;
+        }
+
+        .origLocations li::before {
+            counter-increment: locCount;
+            content: counter(locCount) ". ";
+        }
+
+        .origLocations ol {
+            counter-reset: locCount;
+            padding-left: 0;
+        }
+
+        .loader {
+            display: inline-block;
+            font-size: 10px;
+            text-indent: -9999em;
+            width: 11em;
+            height: 11em;
+            border-radius: 50%;
+            background: #ffffff;
+            background: -moz-linear-gradient(left, #08C 10%, rgba(255, 255, 255, 0) 42%);
+            background: -webkit-linear-gradient(left, #08C 10%, rgba(255, 255, 255, 0) 42%);
+            background: -o-linear-gradient(left, #08C 10%, rgba(255, 255, 255, 0) 42%);
+            background: -ms-linear-gradient(left, #08C 10%, rgba(255, 255, 255, 0) 42%);
+            background: linear-gradient(to right, #08C 10%, rgba(255, 255, 255, 0) 42%);
+            position: relative;
+            -webkit-animation: load3 1.4s infinite linear;
+            animation: load3 1.4s infinite linear;
+            -webkit-transform: translateZ(0);
+            -ms-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        .loader:before {
+            width: 50%;
+            height: 50%;
+            background: #08C;
+            border-radius: 100% 0 0 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            content: '';
+        }
+
+        .loader:after {
+            background: #FFF;
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            content: '';
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        @-webkit-keyframes load3 {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes load3 {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
         /*]]>*/
     </style>
     <script>
@@ -138,7 +220,9 @@
 <body style="font-famile: sans-serif;">
 <h1 style="text-align: center;">Search box</h1>
 
-<div id="facets">Loading facets...</div>
+<div id="facets">
+    <div class="loader">Loading facets...</div>
+</div>
 <div id="results"></div>
 <script type="application/javascript">
     /*<![CDATA[*/
@@ -147,12 +231,21 @@
         var parser = new N3.Parser();
         var item_template =
                 '<div class="item">' +
-                '    <h4><a href="<%= obj.url %>" target="_blank"><%= obj.label %></a></h4>' +
+                '    <h4><%= obj.label %> <small>[<a href="<%= obj.url %>" target="_blank">&#10150;</a>]</small></h4>' +
                 '    <p class="tags">' +
                 '        <% if (obj.type) {  %><%= obj.type %><% } %>' +
                 '        (<% if (obj.count) {  %><%= obj.count %><% } %>)' +
                 '    </p>' +
                 '    <p class="desc"><%= obj.comment %></p>' +
+                '    <% if ( obj.links.length > 0 ){ %>' +
+                '    <p class="origLocations">Original Locations: ' +
+                '        <ol>' +
+                '        <% _.each( obj.links, function( link ){ %>' +
+                '            <li><a href="<%= link %>">&#10149;</a></li>' +
+                '        <% }); %>' +
+                '        </ol>' +
+                '    </p>' +
+                '    <% } %>' +
                 '</div>';
         var settings = {
             facets: {
@@ -166,7 +259,6 @@
             facetSortOption: {}
         };
         var ttl = document.getElementById('e-link_nif').innerHTML.replace(/^\s*<!\[CDATA\[\s*/, '').replace(/\s*\]\]>\s*$/, '').replace(/\]\]>\s*<!\[CDATA\[/g, '');
-        console.log(ttl.slice(0, 1500));
         var lastTriple = {};
         parser.parse(ttl,
                 function (error, triple, prefixes) {
@@ -201,13 +293,17 @@
                                 var classRef = store.find(nifUrl, 'http://www.w3.org/2005/11/its/rdf#taClassRef', null)[0].object;
                                 subjects[ref] = {
                                     url: toXHTML(ref),
+                                    links: [],
                                     label: toXHTML(decodeURIComponent(decodeURIComponent(ref.replace('http://dbpedia.org/resource/', '').replace(/_/g, ' ')))),
                                     comment: commentEn !== '' ? toXHTML(commentEn) : toXHTML(comments[0].object.replace(/@.{1,5}$/, '').slice(1, -1)),
                                     type: classRef.replace(/^[\s\S]+#/, ''),
                                     count: 0
                                 };
                             }
-                            subjects[ref].count++
+                            subjects[ref].count++;
+                            if (classSubjects[i].subject.indexOf('epub://') === 0) {
+                                subjects[ref].links.push(toXHTML(classSubjects[i].subject.replace('epub://', './')));
+                            }
                         }
                         subjects = _.values(subjects);
                         settings.items = subjects;
