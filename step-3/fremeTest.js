@@ -54,7 +54,7 @@ fs.readdir(htmlPath, function (err, files) {
                     //var newId = encodeURIComponent(val['@id'].substring(val['@id'].indexOf('#') + 1));
                     var newId = 'sembook-' + idCounter;
                     idCounter++;
-                    graph[j]["@id"] = 'epub://' + file + '#' + newId;
+                    graph[j]["@id"] = 'epub://' + file.replace('.html', '.xhtml') + '#' + newId;
                     var idPart = 'id="' + newId + '"';
                     var rdfPart = 'about="' + add.url.replace(/&/g, '%26') + '"';
                     // replacement for RDFa
