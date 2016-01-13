@@ -56,7 +56,7 @@ fs.readdir(htmlPath, function (err, files) {
                     idCounter++;
                     graph[j]["@id"] = 'epub://' + file + '#' + newId;
                     var idPart = 'id="' + newId + '"';
-                    var rdfPart = 'about="' + add.url + '"';
+                    var rdfPart = 'about="' + add.url.replace(/&/g, '%26') + '"';
                     // replacement for RDFa
                     var annotatedContent = rdfPart.length > 0 ? '<span ' + idPart + ' ' + rdfPart + '>' + add.selection + "</span>" : add.selection;
                     stripped.middle = stripped.middle.slice(0, start) + annotatedContent + stripped.middle.slice(end);
