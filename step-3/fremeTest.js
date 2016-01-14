@@ -72,8 +72,11 @@ fs.readdir(htmlPath, function (err, files) {
                 var nifFile = file + '.json';
                 fs.writeFile(path.resolve(outPath, nifFile), changedNif, 'utf8');
 
+                // Whilst I am changing the html anyway, lets also remove all srcsets in img, fixing #16
+                var newHtml = (stripped.begin + stripped.middle + stripped.end).replace(/(<img[^>]*)srcset="[^"]*"\s*([^>]*>)/g, '$1$2');
+
                 // write changed HTML
-                fs.writeFile(path.resolve(outPath, file), stripped.begin + stripped.middle + stripped.end, 'utf8', function (writeErr) {
+                fs.writeFile(path.resolve(outPath, file), newHtml, 'utf8', function (writeErr) {
                     if (writeErr) {
                         return done(writeErr);
                     }
