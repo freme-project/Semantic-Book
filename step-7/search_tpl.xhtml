@@ -79,7 +79,6 @@
 
         .item {
             width: 350px;
-            height: 250px;
             margin: 0 10px 10px 0;
             display: inline-block;
             vertical-align: top;
@@ -301,6 +300,12 @@
                                     type: classRef.replace(/^[\s\S]+#/, ''),
                                     count: 0
                                 };
+//                                if (subjects[ref].comment.length > 400) {
+//                                    var cmt = subjects[ref].comment.slice(0, 395);
+//                                    cmt = cmt.slice(0, cmt.lastIndexOf(' '));
+//                                    subjects[ref].comment = cmt + '...';
+//                                }
+//                                console.log(subjects[ref].comment);
                             }
                             subjects[ref].count++;
                             if (classSubjects[i].subject.indexOf('epub://') === 0) {
@@ -318,6 +323,10 @@
         return str.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
             return '&#' + i.charCodeAt(0) + ';';
         });
+    }
+
+    function parseToXHTML(str) {
+        return $.parseHTML(str)[0].outerHTML;
     }
     /*]]>*/
 </script>
