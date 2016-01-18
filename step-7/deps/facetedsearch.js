@@ -202,6 +202,11 @@
                 settings.currentResults.reverse();
             }
         }
+        else {
+            var $activeOrders = $(".activeorderby");
+            $activeOrders.removeClass("activereverseorderby");
+            $activeOrders.removeClass("activeorderby");
+        }
     }
 
     /**
@@ -290,6 +295,7 @@
         // Append deselect filters button
         var deselect = $(settings.deselectTemplate).click(function (event) {
             settings.state.filters = {};
+            settings.state.orderBy = false;
             jQuery.facetUpdate();
         });
         $(bottom).append(deselect);
