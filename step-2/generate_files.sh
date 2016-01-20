@@ -14,14 +14,14 @@ sed -i 's/<a [^>]*>//g' ./out/introduction.html
 sed -i 's/<\/a>//g' ./out/introduction.html
 
 
-#create etymology.html; 319 --> 339 = 21
+#create etymology.html; 291 --> 311 = 21
 head -n 31 original/athens.html > ./out/etymology.html #head
-head -n 331 original/athens.html | tail -n 21 >> ./out/etymology.html
+head -n 311 original/athens.html | tail -n 21 >> ./out/etymology.html
 echo '</div></body></html>' >> ./out/etymology.html
 sed -i 's/<a [^>]*>//g' ./out/etymology.html
 sed -i 's/<\/a>//g' ./out/etymology.html
 
-#create history.html; 340 --> 442 = 103
+#create history.html; 312 --> 414 = 103
 head -n 31 original/athens.html > ./out/history.html #head
 head -n 414 original/athens.html | tail -n 103 >> ./out/history.html
 echo '</div></body></html>' >> ./out/history.html
@@ -84,9 +84,9 @@ echo '</div></body></html>' >> ./out/environment.html
 sed -i 's/<a [^>]*>//g' ./out/environment.html
 sed -i 's/<\/a>//g' ./out/environment.html
 
-#create transport.html; 1599 --> 1752 = 154
+#create transport.html; 1571 --> 1723 = 153
 head -n 31 original/athens.html > ./out/transport.html #head
-head -n 1724 original/athens.html | tail -n 154 >> ./out/transport.html
+head -n 1723 original/athens.html | tail -n 153 >> ./out/transport.html
 echo '</div></body></html>' >> ./out/transport.html
 sed -i 's/<a [^>]*>//g' ./out/transport.html
 sed -i 's/<\/a>//g' ./out/transport.html
